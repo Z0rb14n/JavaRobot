@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.jon;
 
 import java.io.File;
 import java.awt.AWTException;
@@ -27,10 +26,10 @@ import java.util.HashMap;
  *
  * @author adminasaurus
  */
-// Extends Robot Class
+// Represents a wrapper for the robot
 public class RobotWrapper extends Robot {
     private static boolean isNonMac;
-    final static int NORMALDELAY = 20;
+    final static int NORMAL_DELAY = 20;
     public static final String JPG = "jpg";
     public static final String JPEG = "jpeg";
     public static final String PNG = "png";
@@ -61,7 +60,7 @@ public class RobotWrapper extends Robot {
     public RobotWrapper(boolean doDelay) throws AWTException {
         super();
         initLettersNonMac();
-        if (doDelay) setAutoDelay(NORMALDELAY);
+        if (doDelay) setAutoDelay(NORMAL_DELAY);
     }
     
     // Constructor, but a boolean if you use a delay
@@ -128,7 +127,6 @@ public class RobotWrapper extends Robot {
         Keys.put('\\', KeyEvent.VK_BACK_SLASH);
         Keys.put(':', KeyEvent.VK_COLON);
         Keys.put(';', KeyEvent.VK_SEMICOLON);
-        Keys.put(',', KeyEvent.VK_COLON);
         Keys.put('\'', KeyEvent.VK_QUOTE);
         Keys.put('"', KeyEvent.VK_QUOTEDBL);
         Keys.put(',', KeyEvent.VK_COMMA);
@@ -148,12 +146,12 @@ public class RobotWrapper extends Robot {
      * @param y y position to click at
      */
     public void clickAt(int x, int y) {
-        Point lol = MouseInfo.getPointerInfo().getLocation();
-        int lolx = (int) lol.getX();
-        int loly = (int) lol.getY();
+        Point location = MouseInfo.getPointerInfo().getLocation();
+        int initialX = (int) location.getX();
+        int initialY = (int) location.getY();
         mouseMove(x, y);
         button1();
-        mouseMove(lolx, loly);
+        mouseMove(initialX, initialY);
     }
 
     /**
@@ -164,45 +162,45 @@ public class RobotWrapper extends Robot {
      * @param mouseEvent mouse type
      */
     public void clickAt(int x, int y, MouseEvent mouseEvent) {
-        if (!mouseEvent.equals(BUTTON1) && !mouseEvent.equals(BUTTON2) && !mouseEvent.equals(BUTTON3)) {
+        if (mouseEvent.getButton() != BUTTON1 && mouseEvent.getButton() != BUTTON2 && mouseEvent.getButton() != BUTTON3) {
             throw new IllegalArgumentException("clickAt called with invalid MouseEvent " + mouseEvent);
         }
-        Point lol = MouseInfo.getPointerInfo().getLocation();
-        int lolx = (int) lol.getX();
-        int loly = (int) lol.getY();
+        Point location = MouseInfo.getPointerInfo().getLocation();
+        int initialX = (int) location.getX();
+        int initialY = (int) location.getY();
         mouseMove(x, y);
-        if (mouseEvent.equals(BUTTON1)) {
+        if (mouseEvent.getButton() == BUTTON1) {
             button1();
-        } else if (mouseEvent.equals(BUTTON2)) {
+        } else if (mouseEvent.getButton() == BUTTON2) {
             button2();
-        } else if (mouseEvent.equals(BUTTON3)) {
+        } else if (mouseEvent.getButton() == BUTTON3) {
             button3();
         }
-        mouseMove(lolx, loly);
+        mouseMove(initialX, initialY);
     }
 
     /**
      * Convenience: presses Mouse1 and releases it
      */
     public void button1() {
-        mousePress(InputEvent.BUTTON1_MASK);
-        mouseRelease(InputEvent.BUTTON1_MASK);
+        mousePress(InputEvent.BUTTON1_DOWN_MASK);
+        mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
     }
 
     /**
      * Convenience: presses Mouse2 and releases it
      */
     public void button2() {
-        mousePress(InputEvent.BUTTON2_MASK);
-        mouseRelease(InputEvent.BUTTON2_MASK);
+        mousePress(InputEvent.BUTTON2_DOWN_MASK);
+        mouseRelease(InputEvent.BUTTON2_DOWN_MASK);
     }
 
     /**
      * Convenience: presses Mouse3 and releases it
      */
     public void button3() {
-        mousePress(InputEvent.BUTTON3_MASK);
-        mouseRelease(InputEvent.BUTTON3_MASK);
+        mousePress(InputEvent.BUTTON3_DOWN_MASK);
+        mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
     }
 
     /**
@@ -227,10 +225,10 @@ public class RobotWrapper extends Robot {
     }
 
     /**
-     * Holds down keycode Hold and then types all keycodes types
+     * Holds down keycode Hold and then types all key codes types
      *
      * @param hold keycode of key to hold down
-     * @param types keycodes of keys to press
+     * @param types keys from the key codes given
      */
     public void holdType(int hold, int... types) {
         keyPress(hold);
@@ -259,10 +257,10 @@ public class RobotWrapper extends Robot {
     }
 
     /**
-     * Holds down all keys in hold, and then types the integer keycodes
+     * Holds down all keys in hold, and then types the integer key codes
      *
-     * @param hold list of integer keycodes to hold down
-     * @param types integer keycodes to type
+     * @param hold list of integer key codes to hold down
+     * @param types integer key codes to type
      */
     public void holdType(int[] hold, int... types) {
         for (int lol : hold) {
@@ -329,8 +327,7 @@ public class RobotWrapper extends Robot {
      * Types a character by comparing it to the existing HashMaps
      *
      * @param character character to type
-     * @throws IllegalArgumentException upon entering a character that cannot be
-     * typed
+     * @throws IllegalArgumentException upon entering a character that cannot be typed
      */
     public void simplerType(char character) {
         if (Keys.containsKey(character)) {
@@ -355,7 +352,7 @@ public class RobotWrapper extends Robot {
     /**
      * Runs simplerType() on every character in the string
      *
-     * @param a
+     * @param a string to type
      */
     public void simplerType(String a) {
         if (a == null || a.length() == 0) {
@@ -368,9 +365,9 @@ public class RobotWrapper extends Robot {
     
     /**
      * Returns mouse position lol
-     * @return 
+     * @return point (location) of mouse pointer
      */
-    public static final Point getMousePosition() {
+    public static Point getMousePosition() {
         return MouseInfo.getPointerInfo().getLocation();
     }
     //</editor-fold>

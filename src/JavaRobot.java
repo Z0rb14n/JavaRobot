@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.jon;
 
 import java.awt.AWTException;
 import java.awt.Point;
@@ -28,7 +27,9 @@ public class JavaRobot {
     public static void main(String[] args) {
         try {
           bot = new RobotWrapper();
-        } catch (AWTException e) {}
+        } catch (AWTException e) {
+            return;
+        }
         final Runnable lol = () -> {
             // put all repeating code here
             // DO NOT MULTITHREAD
