@@ -15,10 +15,9 @@ import java.util.concurrent.TimeUnit;
  * @author adminasaurus
  */
 public class JavaRobot {
-    static int mouseX = -1;
-    static int mouseY = -1;
-    static final long rate = Math.floorDiv(1000,60);
-    static RobotWrapper bot;
+    private static int mouseX = -1;
+    private static int mouseY = -1;
+    private static final long rate = Math.floorDiv(1000,60);
     //</editor-fold>
     /**
      * Args are unused
@@ -26,14 +25,13 @@ public class JavaRobot {
      */
     public static void main(String[] args) {
         try {
-          bot = new RobotWrapper();
+            RobotWrapper bot = new RobotWrapper();
+            bot.mouseMove(100,100);
         } catch (AWTException e) {
             return;
         }
         final Runnable lol = () -> {
             // put all repeating code here
-            // DO NOT MULTITHREAD
-            // IF ANY, IT'S BETTER TO USE A WHILE TRUE THAN THIS.
             Point mousePos = RobotWrapper.getMousePosition();
             mouseX = (int) mousePos.getX();
             mouseY = (int) mousePos.getY();

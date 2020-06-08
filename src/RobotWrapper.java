@@ -17,7 +17,6 @@ import java.awt.event.MouseEvent;
 import static java.awt.event.MouseEvent.BUTTON1;
 import static java.awt.event.MouseEvent.BUTTON2;
 import static java.awt.event.MouseEvent.BUTTON3;
-import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import java.util.HashMap;
@@ -29,38 +28,34 @@ import java.util.HashMap;
 // Represents a wrapper for the robot
 public class RobotWrapper extends Robot {
     private static boolean isNonMac;
-    final static int NORMAL_DELAY = 20;
-    public static final String JPG = "jpg";
-    public static final String JPEG = "jpeg";
-    public static final String PNG = "png";
-    public static final String BMP = "bmp";
-    public static final String WBMP = "wbmp";
-    public static final String GIF = "gif";
+    private static final int NORMAL_DELAY = 20;
+    private static final String JPG = "jpg";
+    private static final String JPEG = "jpeg";
+    private static final String PNG = "png";
+    private static final String BMP = "bmp";
+    private static final String WBMP = "wbmp";
+    private static final String GIF = "gif";
     private static final String ALLCAPS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ~%(){}|<>?";
     private static final String CAPS_CORRESPONDING = "abcdefghijklmnopqrstuvwxyz`590[]\\,./";
     private static final String ALLALTS = "º¡™£¢∞§¶•ªå∫ç∂ƒ©˙ˆ∆˚¬µ˜øπœ®ß†¨√∑≈¥Ω–";
     private static final String ALTS_CORRESPONDING = "0123456789abcdfghijklmnopqrstuvwxyz-";
     private static final String ALLSAlts = "ÅıÇÎ´Ï˝ÓˆÔÒÂ˜Ø∏Œ‰Íˇ¨◊„˛Á¸‚⁄€‹›ﬁﬂ‡°·—±”’»ÚÆ¯˘¿";
-    private static final String SAlts_CORRESPONDING = "abcdefghijklmnopqrstuvwxyz0123456789-=[]\\;\',./";
+    private static final String SAlts_CORRESPONDING = "abcdefghijklmnopqrstuvwxyz0123456789-=[]\\;',./";
     private static final HashMap<Character, Integer> Keys = new HashMap<>();
     private static final HashMap<Character, Character> Caps = new HashMap<>();
     private static final HashMap<Character, Character> Alts = new HashMap<>();
     private static final HashMap<Character, Character> SAlt = new HashMap<>();
-    public final static String DESKTOP = "/Users/adminasaurus/Desktop/";
-    public final static int DISPLAYHEIGHT = Toolkit.getDefaultToolkit().getScreenSize().height;
-    public final static int DISPLAYWIDTH = Toolkit.getDefaultToolkit().getScreenSize().width;
+    private final static int DISPLAY_HEIGHT = Toolkit.getDefaultToolkit().getScreenSize().height;
+    private final static int DISPLAY_WIDTH = Toolkit.getDefaultToolkit().getScreenSize().width;
 
     // Constructor. Yeah. About that..
     public RobotWrapper() throws AWTException {
-        super();
-        initLettersNonMac();
+        this(true);
     }
     
     // Constructor, but a boolean if you use a delay
     public RobotWrapper(boolean doDelay) throws AWTException {
-        super();
-        initLettersNonMac();
-        if (doDelay) setAutoDelay(NORMAL_DELAY);
+        this(doDelay, NORMAL_DELAY);
     }
     
     // Constructor, but a boolean if you use a delay
@@ -206,7 +201,7 @@ public class RobotWrapper extends Robot {
     /**
      * Runs keyPress but holds shift before running
      *
-     * @param a_key keycode of key to press
+     * @param a_key key code of key to press
      */
     public void keyPressCapitalized(int a_key) {
         keyPress(KeyEvent.VK_SHIFT);
@@ -217,7 +212,7 @@ public class RobotWrapper extends Robot {
     /**
      * Presses and releases a key
      *
-     * @param a_key key code
+     * @param a_key key code of key to press and release
      */
     public void keyPressRelease(int a_key) {
         keyPress(a_key);
@@ -225,10 +220,10 @@ public class RobotWrapper extends Robot {
     }
 
     /**
-     * Holds down keycode Hold and then types all key codes types
+     * Holds down key from key code of hold and then types all keys from key codes given
      *
-     * @param hold keycode of key to hold down
-     * @param types keys from the key codes given
+     * @param hold key code of key to hold down
+     * @param types key codes of keys to type
      */
     public void holdType(int hold, int... types) {
         keyPress(hold);
@@ -260,7 +255,7 @@ public class RobotWrapper extends Robot {
      * Holds down all keys in hold, and then types the integer key codes
      *
      * @param hold list of integer key codes to hold down
-     * @param types integer key codes to type
+     * @param types integer key codes of keys to type
      */
     public void holdType(int[] hold, int... types) {
         for (int lol : hold) {
@@ -277,7 +272,7 @@ public class RobotWrapper extends Robot {
     /**
      * Holds down all keys in hold and then types the characters
      *
-     * @param hold list of integer keycodes to hold down
+     * @param hold list of integer key codes of keys to hold down
      * @param types list of characters to type
      */
     public void holdType(int[] hold, char... types) {
@@ -295,7 +290,7 @@ public class RobotWrapper extends Robot {
     /**
      * Holds down keycode hold and then types all characters
      *
-     * @param hold integer keycode to hold down
+     * @param hold integer key code of key to hold down
      * @param types characters to type afterwards
      */
     public void holdType(int hold, char... types) {
@@ -307,9 +302,9 @@ public class RobotWrapper extends Robot {
     }
 
     /**
-     * Holds down keycode hold and then types the string
+     * Holds down key from key code hold and then types the string
      *
-     * @param hold integer keycode to hold
+     * @param hold integer keycode of key to hold
      * @param list String to type
      */
     public void holdType(int hold, String list) {
@@ -374,159 +369,105 @@ public class RobotWrapper extends Robot {
 
     //<editor-fold desc="Screenshot Code">
     /**
-     * Takes a screenshot with the given format specified by the path Format is
-     * one of "jpeg","jpg","png","bmp","wbmp","gif" Saves screenshot to the
-     * given path Screenshot is of the whole screen
+     * Takes a screenshot of the whole screen and saves to the given path.
+     * File extension is one of JPEG, JPG, PNG, BMP, WBMP or GIF.
      *
-     * @param path Path to save screenshot to
+     * @param path path to save screenshot to
+     * @throws IllegalArgumentException if file has an invalid file extension
      */
     public void screenShot(String path) {
-        if (path == null || path.length() < 5) {
-            throw new IllegalArgumentException("BRUH WHAT");
-        }
-        String ext4 = path.substring(path.length() - 4, path.length());
-        String ext3 = path.substring(path.length() - 3, path.length());
-        String mode = null;
-        if (ext4.compareToIgnoreCase(JPEG) == 0) {
-            mode = JPEG;
-        } else if (ext3.compareToIgnoreCase(JPG) == 0) {
-            mode = JPG;
-        } else if (ext3.compareToIgnoreCase(PNG) == 0) {
-            mode = PNG;
-        } else if (ext3.compareToIgnoreCase(BMP) == 0) {
-            mode = BMP;
-        } else if (ext4.compareToIgnoreCase(WBMP) == 0) {
-            mode = WBMP;
-        } else if (ext3.compareToIgnoreCase(GIF) == 0) {
-            mode = GIF;
-        } else {
-            throw new IllegalArgumentException("BRUH WHAT");
-        }
-        File output = new File(path);
-        try {
-            ImageIO.write(createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize())), mode, output);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        screenShot(new Rectangle(0,0, DISPLAY_WIDTH, DISPLAY_HEIGHT),new File(path));
     }
 
     /**
-     * Takes a screenshot with the given format specified by the path Format is
-     * one of "jpeg","jpg","png","bmp","wbmp","gif" The screenshot is of the
-     * specific area specified by the rectangle Saves to that path
+     * Takes a screenshot of the whole screen and saves to the given path.
+     * File extension is one of JPEG, JPG, PNG, BMP, WBMP or GIF.
      *
-     * @param area Section of screen to take a screenshot of
-     * @param path Path to save screenshot to
+     * @param path path to save screenshot to
+     * @throws IllegalArgumentException if file has an invalid file extension
+     */
+    public void screenShot(File path) {
+        screenShot(new Rectangle(0,0, DISPLAY_WIDTH, DISPLAY_HEIGHT),path);
+    }
+
+    /**
+     * Takes a screenshot of the given area and saves to the given path.
+     * File extension is one of JPEG, JPG, PNG, BMP, WBMP or GIF.
+     *
+     * @param area section of screen to take a screenshot of
+     * @param path path to save screenshot to
+     * @throws IllegalArgumentException if file has an invalid file extension
      */
     public void screenShot(Rectangle area, String path) {
-        if (path == null || path.length() < 5) {
-            throw new IllegalArgumentException("BRUH WHAT");
-        }
-        String ext4 = path.substring(path.length() - 4, path.length());
-        String ext3 = path.substring(path.length() - 3, path.length());
-        String mode = null;
-        if (ext4.compareToIgnoreCase(JPEG) == 0) {
-            mode = JPEG;
-        } else if (ext3.compareToIgnoreCase(JPG) == 0) {
-            mode = JPG;
-        } else if (ext3.compareToIgnoreCase(PNG) == 0) {
-            mode = PNG;
-        } else if (ext3.compareToIgnoreCase(BMP) == 0) {
-            mode = BMP;
-        } else if (ext4.compareToIgnoreCase(WBMP) == 0) {
-            mode = WBMP;
-        } else if (ext3.compareToIgnoreCase(GIF) == 0) {
-            mode = GIF;
-        } else {
-            throw new IllegalArgumentException("BRUH WHAT");
-        }
-        File output = new File(path);
+        screenShot(area,new File(path));
+    }
+
+    /**
+     * Takes a screenshot of the given area and saves to the given path.
+     * File extension is one of JPEG, JPG, PNG, BMP, WBMP or GIF.
+     *
+     * @param area section of screen to take a screenshot of
+     * @param file path to save screenshot to
+     * @throws IllegalArgumentException if file has an invalid file extension
+     */
+    public void screenShot(Rectangle area, File file) {
+        String mode = getImageExtension(file);
         try {
-            ImageIO.write(createScreenCapture(area), mode, output);
+            ImageIO.write(createScreenCapture(area), mode, file);
         } catch (Exception e) {
+            System.err.println("Could not take/output screen capture.");
             e.printStackTrace();
         }
     }
 
     /**
-     * Takes a screenshot with the given format specified by the path Format is
-     * one of "jpeg","jpg","png","bmp","wbmp","gif" Saves screenshot to the
-     * given path Screenshot is of the screen specified by x/y/height/height
-     * coords
+     * Gets the image extension from a given file
+     * @param file path to file in question
+     * @return the image extension (e.g. JPEG, PNG)
+     * @throws IllegalArgumentException if file has an invalid file extension
+     */
+    private static String getImageExtension(File file) {
+        String path = file.getAbsolutePath();
+        if (path.length() < 5) throw new IllegalArgumentException("Invalid file extension: " + path);
+        String ext4 = path.substring(path.length() - 4);
+        String ext3 = path.substring(path.length() - 3);
+        if (ext4.compareToIgnoreCase(JPEG) == 0) return JPEG;
+        else if (ext3.compareToIgnoreCase(JPG) == 0) return JPG;
+        else if (ext3.compareToIgnoreCase(PNG) == 0) return PNG;
+        else if (ext3.compareToIgnoreCase(BMP) == 0) return BMP;
+        else if (ext4.compareToIgnoreCase(WBMP) == 0) return WBMP;
+        else if (ext3.compareToIgnoreCase(GIF) == 0) return GIF;
+        else throw new IllegalArgumentException("BRUH WHAT");
+    }
+
+    /**
+     * Takes a screenshot of a given area specified by a top left point, width and height and saves it to the given path.
+     * File extension is one of JPEG,JPG,PNG,BMP,WBMP or GIF.
      *
-     * @param x top left horizontal coordinate of screenshot - starts at 0?
-     * @param y top left vertical coordinate of screenshot - starts at 0?
+     * @param x top left horizontal coordinate of screenshot - starts at 0
+     * @param y top left vertical coordinate of screenshot - starts at 0
      * @param width width of screenshot
      * @param height height of screenshot
      * @param path path to save screenshot to
+     * @throws IllegalArgumentException if file has an invalid file extensionv
      */
     public void screenShot(int x, int y, int width, int height, String path) {
-        if (path == null || path.length() < 5) {
-            throw new IllegalArgumentException("BRUH WHAT");
-        }
-        String ext4 = path.substring(path.length() - 4, path.length());
-        String ext3 = path.substring(path.length() - 3, path.length());
-        String mode = null;
-        if (ext4.compareToIgnoreCase(JPEG) == 0) {
-            mode = JPEG;
-        } else if (ext3.compareToIgnoreCase(JPG) == 0) {
-            mode = JPG;
-        } else if (ext3.compareToIgnoreCase(PNG) == 0) {
-            mode = PNG;
-        } else if (ext3.compareToIgnoreCase(BMP) == 0) {
-            mode = BMP;
-        } else if (ext4.compareToIgnoreCase(WBMP) == 0) {
-            mode = WBMP;
-        } else if (ext3.compareToIgnoreCase(GIF) == 0) {
-            mode = GIF;
-        } else {
-            throw new IllegalArgumentException("BRUH WHAT");
-        }
-        File output = new File(path);
-        try {
-            ImageIO.write(createScreenCapture(new Rectangle(x, y, width, height)), mode, output);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        screenShot(x,y,width,height, new File(path));
     }
 
     /**
-     * Takes a screenshot with the given format specified by the path Format is
-     * one of "jpeg","jpg","png","bmp","wbmp","gif" Saves screenshot to the
-     * given path Screenshot is of the screen specified by x/y/height/height
-     * coords
+     * Takes a screenshot of a given area specified by a top left point, width and height and saves it to the given path.
+     * File extension is one of JPEG,JPG,PNG,BMP,WBMP or GIF.
      *
-     * @param x top left horizontal coordinate of screenshot - starts at 0?
-     * @param y top left vertical coordinate of screenshot - starts at 0?
+     * @param x top left horizontal coordinate of screenshot - starts at 0
+     * @param y top left vertical coordinate of screenshot - starts at 0
      * @param width width of screenshot
      * @param height height of screenshot
-     * @param path_file File object containing path to save screenshot to
+     * @param file path to save screenshot to
+     * @throws IllegalArgumentException if file has an invalid file extensionv
      */
-    public void screenShot(int x, int y, int width, int height, File path_file) {
-        String path = path_file.getAbsolutePath();
-        String ext4 = path.substring(path.length() - 4, path.length());
-        String ext3 = path.substring(path.length() - 3, path.length());
-        String mode = null;
-        if (ext4.compareToIgnoreCase(JPEG) == 0) {
-            mode = JPEG;
-        } else if (ext3.compareToIgnoreCase(JPG) == 0) {
-            mode = JPG;
-        } else if (ext3.compareToIgnoreCase(PNG) == 0) {
-            mode = PNG;
-        } else if (ext3.compareToIgnoreCase(BMP) == 0) {
-            mode = BMP;
-        } else if (ext4.compareToIgnoreCase(WBMP) == 0) {
-            mode = WBMP;
-        } else if (ext3.compareToIgnoreCase(GIF) == 0) {
-            mode = GIF;
-        } else {
-            throw new IllegalArgumentException("BRUH WHAT");
-        }
-        try {
-            ImageIO.write(createScreenCapture(new Rectangle(x, y, width, height)), mode, path_file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void screenShot(int x, int y, int width, int height, File file) {
+        screenShot(new Rectangle(x,y,width,height),file);
     }
     //</editor-fold>
 }
