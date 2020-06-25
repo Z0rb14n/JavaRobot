@@ -4,22 +4,14 @@
  * and open the template in the editor.
  */
 
-import java.io.File;
-import java.awt.AWTException;
-import java.awt.MouseInfo;
-import java.awt.Point;
-import java.awt.Robot;
-import java.awt.Toolkit;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import static java.awt.event.MouseEvent.BUTTON1;
-import static java.awt.event.MouseEvent.BUTTON2;
-import static java.awt.event.MouseEvent.BUTTON3;
-
-import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
+
+import static java.awt.event.MouseEvent.*;
 
 /**
  *
@@ -29,12 +21,6 @@ import java.util.HashMap;
 public class RobotWrapper extends Robot {
     private static boolean isNonMac;
     private static final int NORMAL_DELAY = 20;
-    private static final String JPG = "jpg";
-    private static final String JPEG = "jpeg";
-    private static final String PNG = "png";
-    private static final String BMP = "bmp";
-    private static final String WBMP = "wbmp";
-    private static final String GIF = "gif";
     private static final String ALLCAPS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ~%(){}|<>?";
     private static final String CAPS_CORRESPONDING = "abcdefghijklmnopqrstuvwxyz`590[]\\,./";
     private static final String ALLALTS = "º¡™£¢∞§¶•ªå∫ç∂ƒ©˙ˆ∆˚¬µ˜øπœ®ß†¨√∑≈¥Ω–";
@@ -367,107 +353,31 @@ public class RobotWrapper extends Robot {
     }
     //</editor-fold>
 
-    //<editor-fold desc="Screenshot Code">
     /**
      * Takes a screenshot of the whole screen and saves to the given path.
-     * File extension is one of JPEG, JPG, PNG, BMP, WBMP or GIF.
-     *
-     * @param path path to save screenshot to
-     * @throws IllegalArgumentException if file has an invalid file extension
      */
-    public void screenShot(String path) {
-        screenShot(new Rectangle(0,0, DISPLAY_WIDTH, DISPLAY_HEIGHT),new File(path));
+    public BufferedImage screenShot() {
+        return screenShot(new Rectangle(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT));
     }
 
     /**
-     * Takes a screenshot of the whole screen and saves to the given path.
-     * File extension is one of JPEG, JPG, PNG, BMP, WBMP or GIF.
-     *
-     * @param path path to save screenshot to
-     * @throws IllegalArgumentException if file has an invalid file extension
-     */
-    public void screenShot(File path) {
-        screenShot(new Rectangle(0,0, DISPLAY_WIDTH, DISPLAY_HEIGHT),path);
-    }
-
-    /**
-     * Takes a screenshot of the given area and saves to the given path.
-     * File extension is one of JPEG, JPG, PNG, BMP, WBMP or GIF.
+     * Takes a screenshot of the given area.
      *
      * @param area section of screen to take a screenshot of
-     * @param path path to save screenshot to
-     * @throws IllegalArgumentException if file has an invalid file extension
      */
-    public void screenShot(Rectangle area, String path) {
-        screenShot(area,new File(path));
+    public BufferedImage screenShot(Rectangle area) {
+        return super.createScreenCapture(area);
     }
 
     /**
-     * Takes a screenshot of the given area and saves to the given path.
-     * File extension is one of JPEG, JPG, PNG, BMP, WBMP or GIF.
-     *
-     * @param area section of screen to take a screenshot of
-     * @param file path to save screenshot to
-     * @throws IllegalArgumentException if file has an invalid file extension
-     */
-    public void screenShot(Rectangle area, File file) {
-        String mode = getImageExtension(file);
-        try {
-            ImageIO.write(createScreenCapture(area), mode, file);
-        } catch (Exception e) {
-            System.err.println("Could not take/output screen capture.");
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Gets the image extension from a given file
-     * @param file path to file in question
-     * @return the image extension (e.g. JPEG, PNG)
-     * @throws IllegalArgumentException if file has an invalid file extension
-     */
-    private static String getImageExtension(File file) {
-        String path = file.getAbsolutePath();
-        if (path.length() < 5) throw new IllegalArgumentException("Invalid file extension: " + path);
-        String ext4 = path.substring(path.length() - 4);
-        String ext3 = path.substring(path.length() - 3);
-        if (ext4.compareToIgnoreCase(JPEG) == 0) return JPEG;
-        else if (ext3.compareToIgnoreCase(JPG) == 0) return JPG;
-        else if (ext3.compareToIgnoreCase(PNG) == 0) return PNG;
-        else if (ext3.compareToIgnoreCase(BMP) == 0) return BMP;
-        else if (ext4.compareToIgnoreCase(WBMP) == 0) return WBMP;
-        else if (ext3.compareToIgnoreCase(GIF) == 0) return GIF;
-        else throw new IllegalArgumentException("BRUH WHAT");
-    }
-
-    /**
-     * Takes a screenshot of a given area specified by a top left point, width and height and saves it to the given path.
-     * File extension is one of JPEG,JPG,PNG,BMP,WBMP or GIF.
+     * Takes a screenshot of a given area specified by a top left point, width and height.
      *
      * @param x top left horizontal coordinate of screenshot - starts at 0
      * @param y top left vertical coordinate of screenshot - starts at 0
      * @param width width of screenshot
      * @param height height of screenshot
-     * @param path path to save screenshot to
-     * @throws IllegalArgumentException if file has an invalid file extensionv
      */
-    public void screenShot(int x, int y, int width, int height, String path) {
-        screenShot(x,y,width,height, new File(path));
+    public BufferedImage screenShot(int x, int y, int width, int height) {
+        return screenShot(new Rectangle(x, y, width, height));
     }
-
-    /**
-     * Takes a screenshot of a given area specified by a top left point, width and height and saves it to the given path.
-     * File extension is one of JPEG,JPG,PNG,BMP,WBMP or GIF.
-     *
-     * @param x top left horizontal coordinate of screenshot - starts at 0
-     * @param y top left vertical coordinate of screenshot - starts at 0
-     * @param width width of screenshot
-     * @param height height of screenshot
-     * @param file path to save screenshot to
-     * @throws IllegalArgumentException if file has an invalid file extensionv
-     */
-    public void screenShot(int x, int y, int width, int height, File file) {
-        screenShot(new Rectangle(x,y,width,height),file);
-    }
-    //</editor-fold>
 }
