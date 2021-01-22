@@ -20,12 +20,12 @@ import static java.awt.event.MouseEvent.BUTTON3;
 
 import javax.imageio.ImageIO;
 import java.util.HashMap;
+import java.util.Locale;
 
 /**
- *
+ * Wrapper for the Robot class.
  * @author adminasaurus
  */
-// Represents a wrapper for the robot
 public class RobotWrapper extends Robot {
     private static boolean isNonMac;
     private static final int NORMAL_DELAY = 20;
@@ -47,37 +47,61 @@ public class RobotWrapper extends Robot {
     private static final HashMap<Character, Character> SAlt = new HashMap<>();
     private final static int DISPLAY_HEIGHT = Toolkit.getDefaultToolkit().getScreenSize().height;
     private final static int DISPLAY_WIDTH = Toolkit.getDefaultToolkit().getScreenSize().width;
+    static {
+        String os = System.getProperty("os.name","generic").toLowerCase(Locale.ENGLISH);
+        if (os.contains("mac") || os.contains("darwin")) {
+            isNonMac = false;
+            initLettersMac();
+        } else {
+            isNonMac = true;
+            if (os.startsWith("windows")) initLettersWindows();
+            else initUniversal();
+        }
+    }
 
-    // Constructor. Yeah. About that..
+    /**
+     * Constructor with default settings - with a delay of NORMAL_DELAY
+     * @throws AWTException throws AWTException when super constructor fails
+     */
     public RobotWrapper() throws AWTException {
         this(true);
     }
-    
-    // Constructor, but a boolean if you use a delay
+
+    /**
+     * Constructor with specified doDelay option. If delay is run, the delay will be NORMAL_DELAY.
+     * @param doDelay whether the delay is actually done
+     * @throws AWTException thrown when super constructor fails
+     */
     public RobotWrapper(boolean doDelay) throws AWTException {
         this(doDelay, NORMAL_DELAY);
     }
-    
-    // Constructor, but a boolean if you use a delay
+
+    /**
+     * Constructor with specified doDelay option and delay time.
+     * @param doDelay whether the delay is actually done
+     * @param delayAmount how long the robot should automatically delay for.
+     * @throws AWTException thrown when super constructor fails.
+     */
     public RobotWrapper(boolean doDelay, int delayAmount) throws AWTException {
         super();
-        initLettersNonMac();
         if (doDelay) setAutoDelay(delayAmount);
     }
 
     //<editor-fold desc="Convenience Code">
-    // MODIFIES: this
-    // EFFECTS: initializes the keys/caps/Alts/Salts for Non-Mac operating Systems
-    private static void initLettersNonMac() {
-        isNonMac = true;
+    /**
+     * Maps keys/capital letters to key events on windows systems.
+     */
+    private static void initLettersWindows() {
+        if (!isNonMac) isNonMac = true;
         initUniversal();
         // INIT WINDOWS KEY - I CANNOT TEST SINCE I'M A MAC USER
         System.gc();
     }
 
-    // MODIFIES: this
-    // EFFECTS: initializes the Keys/caps/ALts/Salts
-    private static void initLetters() {
+    /**
+     * Maps keys/capital letters/characters on alt-key pressed/characters on shift-alt-key to key events on MacOS systems.
+     */
+    private static void initLettersMac() {
         isNonMac = false;
         initUniversal();
         Keys.put((char) 8984, KeyEvent.VK_META); //can use ⌘, mac command key, int code 8984
@@ -93,8 +117,9 @@ public class RobotWrapper extends Robot {
         System.gc();
     }
 
-    // MODIFIES: this
-    // EFFECTS: initializes the keys/caps only
+    /**
+     * Maps letters/capital letters to key events only.
+     */
     private static void initUniversal() {
         for (char i = 'a'; i < 'z' + 1; i++) {
             Keys.put(i, i - 'a' + KeyEvent.VK_A);
