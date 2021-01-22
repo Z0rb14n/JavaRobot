@@ -1,4 +1,6 @@
 # JavaRobot
-Something that wraps over the Java Robot class to make it easier. I don't know, alright?
+A higher level wrapper for Java's Robot class.
 
-Note, if you want the robot, you just download the RobotWrapper class only. The main() method only is if you want to repeat information.
+It allows users to type in strings by calling robot.simplerType(str); instead of manually programming in individual key codes for strings, and allows for easier screenshots of the screen.
+
+Note that the main class is entirely optional - only the wrapper is needed (JavaRobot is the main class, RobotWrapper is the wrapper).
